@@ -31,7 +31,9 @@ sudo nano /etc/fstab
 UUID=your-uuid-here  /mnt/secondary  ext4  defaults  0  2
 ```
 ## Installing Apps
-!!! Warning DO NOT INSTALL APPS THROUGH FLATPACK 
+
+> [!WARNING]
+> Warning DO NOT INSTALL APPS THROUGH FLATPACK
 
 ### Debian Packages
 
