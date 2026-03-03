@@ -8,6 +8,7 @@
 - [Installing Apps](#installing-apps)
 - [Linux Gaming](#linux-gaming)
 - [Fixes for Common Issues](#potential-issues)
+- [Glossary](#glossary)
 
 ## Create Boot Drive
 
@@ -30,6 +31,8 @@ Once installed, all you do it:
 
 #### Disks App from GNOME
 
+<sub>Not all distros will have this app.</sub>
+
 1. Open Disks.
 2. Plug in Target drive.
 3. Select Target drive in left hand column.
@@ -39,7 +42,6 @@ Once installed, all you do it:
 6. Select the Linux ISO as Image to Restore.
     ![GNOME Disks app restore disk](https://support.endlessos.org/help-center/article_attachments/360002119232/img-05.png)
 7. Follow the instructions.
-
 
 #### Startup Disk Creator
 
@@ -65,7 +67,7 @@ Plug in the boot drive if it's not already, we will be restarting the computer a
 
 Here are some ways this can be achieved:
 
-- The most universal way is restarting the computer and pressing the function key that your device uses to access the boot menu. Usually this is `F12`, but this can vary. You will see this screen flash before your login screen.
+- The most universal way is restarting the computer and pressing the function key that your device uses to access the boot menu. Usually this is `F12`, but this can vary. You will see a screen showing the key to press before your login screen.
 - Windows Advanced Startup:
   - In Windows 11, go to `Settings > System > Recovery`. Next to Advanced startup, select Restart now. On Blue screen select "Use a Device".
   - In Windows 10, go to `Settings > Update & Security > Recovery`. Under the Advanced startup section, select Restart. On Blue screen select "Use a Device".
@@ -81,14 +83,14 @@ When booting from the drive you created Ubuntu prompts you of what you would lik
 > [!IMPORTANT]
 > If you are installing on a machine that requires Nvidia Drivers you must select the option that has `(safe graphics)`
 
-Follow the steps Ubuntu provides for installation to your preference.
+Follow the steps provided for installation to your preference.
 
 Things I recommend during installation:
 
 - Interactive installation
 - **For computers with an Nvidia GPU** make sure you check third-party software\
 ![This is the caption for the image.](https://ubuntucommunity.s3.us-east-2.amazonaws.com/optimized/3X/f/f/ff8b742c5b79efaaed137928080a48b7ad260ba7_2_800x496.jpeg)
-- Erase Disk and Install Ubuntu
+- Erase Disk and Install Distro
   - You'll have to select your main drive
   - NO ADVANCED FEATURES
 
@@ -100,15 +102,58 @@ You'll notice that your other hard drives and SSDs show up as external drives. W
 
 ### Reformat Drives
 
-When switching from windows, the drives tend to be in format `ntfs` which is specific to windows. We'll want to make these `ext4`,
+When switching from windows, the drives tend to be in format `ntfs` which is specific to windows. We'll want to make these `ext4`.
 
-#### Disks App from GNOME
+> [!WARNING]
+> Before starting this process, please back-up any important files that may be on these drives as **reformating them with new partitions will wipe them clean**.
 
+#### [Disks App from GNOME](https://docs.puri.sm/Software/PureOS/Tips/disks.html)
 
-```cmd
-sudo nano /etc/fstab
-UUID=your-uuid-here  /mnt/secondary  ext4  defaults  0  2
+#### [Terminal](https://www.digitalocean.com/community/tutorials/create-a-partition-in-linux)
+
+### Mounting on Boot
+
+In order to add a disk to be a main file system we will need to edit the table in `fstab`.
+
+`sudo nano /stc/fstab`
+
+The file will look similar to this:
+
+```bash
+# /etc/fstab: static file system information.
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+
+proc  /proc  proc  defaults  0  0
+# /dev/sda5
+UUID=be35a709-c787-4198-a903-d5fdc80ab2f8  /  ext3  relatime,errors=remount-ro  0  1
+# /dev/sda6
+UUID=cee15eca-5b2e-48ad-9735-eae5ac14bc90  none  swap  sw  0  0
+
+/dev/scd0  /media/cdrom0  udf,iso9660  user,noauto,exec,utf8  0  0
 ```
+
+You'll notice it's not a clean table. The commented line tells us what each column is for. Columns are determined by having at space. Basically, don't worry about making it pretty.
+
+Here's some [context](https://man7.org/linux/man-pages/man5/fstab.5.html) to each column:
+
+- *file system* - The identifier of the disk. Best practice to use UUID in case you need to swap ports.
+- *mount point* - The directory that will be the root of this disk. (Your primary disk will always have `/` as the mount point as that is the true root of the computer)
+- *type* - Format of the disk (`ntfs`, `ext4`, `vfat`)
+- *options* - Mounting options. `defaults` is good for this.
+- *dump* - This is `0` unless you wish to configure file dumping
+- *pass* - Sort of determining the priority of mounting/booting disk. For extra disks like these we'll do a `1` or `2`.
+
+We will want to add a line below the other file systems and add all our extra drives we want to treat as internal drives. To find the UUID you can run `lsblk -f` or in GNOME's Disks app.
+
+Most of your added lines might look like this: 
+
+```bash
+/dev/disk/by-uuid/[found uuid of disk] /media/mnt ext4 defaults 0 2
+UUID=[found uuid of disk] /secondary ext4 defaults 0 1
+```
+
+Reboot the computer to check that your changes worked.
 
 ## Installing Apps
 
@@ -233,3 +278,27 @@ Reboot your computer and check if it helped!
 ### Login Loop
 
 If you made any changes to your `~/.bashrc` file this may cause problems. If you ran into a login loop I recommend reverting changes made to this file.
+
+## Glossary
+
+**Daemon** - A program that runs in the background and runs tasks usually at start-up.
+
+**Disk** - An umbrella term for computer components holding storage. (i.e. flash drives, HDD, SSD, CD)
+
+**Distro** - Short for distribution. An operating system that includes the Linux kernel for its kernel functionality.
+
+**Drivers** - Software that tells the computer how it should handle/use hardware components. (i.e. Some headsets, microphones, tablets need specific drivers installed to function)
+
+**GNOME** - A common Open source GUI (Graphical User Interface) for linux systems.
+
+**GPU** - Graphics Processing Unit.
+
+**ISO file/image** - An exact copy of an entire optical disk such as a CD, DVD, or Blu-ray archived into a single file.
+
+**Kernel** - The core of an Operating System. It manages the hardware's resources used by running applications.
+
+**nano** - A file editor tool used in the terminal/commandline. Many files require permissions to edit so `sudo` is necessary.
+
+**OS** - Operating System. A system of tools/programs that manage the communication between hardware and software. Includes GUI, file system, security, and the kernel (the core of managing the computer).
+
+**sudo** - super user do. Used to run a command as if you are the root user.
