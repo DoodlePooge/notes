@@ -193,14 +193,14 @@ If it fails to run, you need to give yourself the correct permissions which can 
 
 ### Steam
 
-.<https://discourse.ubuntu.com/t/mounting-a-persistent-drive-for-steam-games/53463/2>
-.
+To be able to run "Windows only" games go to `Steam -> Settings -> Compatibility` and check "Enable Steam Play for all titles" and restart steam.
 
 ## Potential Issues
 
 - [Visual Glitches](#visual-glitches)
 - [Discord Streaming Issues](#disable-wayland)
 - [Login Loop](#login-loop)
+- [Steam Storage](#steam-cant-find-other-drives)
 
 ### Visual Glitches
 
@@ -278,6 +278,15 @@ Reboot your computer and check if it helped!
 ### Login Loop
 
 If you made any changes to your `~/.bashrc` file this may cause problems. If you ran into a login loop I recommend reverting changes made to this file.
+
+### Steam can't find other drives
+
+There are 2 things to primarily check.
+
+1. Make sure your disks are [mounted properly](#mounting-secondary-drives)
+2. If you are using snap (and wish to continue to) for your steam installation you may need to grant steam access to the drive first: `sudo snap connect steam:removable-media`
+3. If steam was installed with flatpack... undo that :)\
+[See Installing Apps](#installing-apps)
 
 ## Glossary
 
